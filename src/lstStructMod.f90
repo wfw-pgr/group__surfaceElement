@@ -1,5 +1,17 @@
 module lstStructMod
 
+  ! -- how to use  -- !
+  ! type(list_type), pointer :: list
+  ! nullify( list )   
+  ! call add__elementInList( list, elementNum=10, groupNum=1 )
+  ! call add__elementInList( list, elementNum=20, groupNum=2 )
+  ! call show__nodeInList  ( list )
+  ! call investigate__listInfo( list, max_nCell, list_length )
+  ! allocate( cells(max_nCell), groupNums(list_length) )
+  ! call obtain__cellsInGroup ( list, 3, nCell, cells, max_nCell )
+  ! call obtain__groupNumArray( list, groupNum_array, list_length )
+  ! ----------------- !
+  
   ! ------------------------------------------------------ !
   ! ---  list element                                  --- !
   ! ------------------------------------------------------ !
@@ -234,10 +246,40 @@ contains
     
     return
   end subroutine obtain__cellsInGroup
-  
-  
 
 
+  ! ====================================================== !
+  ! === obtain groupNum array                          === !
+  ! ====================================================== !
+  subroutine obtain__groupNumArray( list, groupNum_array, array_len )
+    implicit none
+    type(list_type), pointer, intent(in)  :: list
+    integer                 , intent(in)  :: array_len
+    integer                 , intent(out) :: groupNum_array(array_len)
+    type(list_type), pointer              :: iter
+    integer                               :: count
+    
+    if ( associated( list ) ) then
+       iter => list
+       count = 0
+       do
+          count                 = count + 1
+          groupNum_array(count) = iter%groupNum
+          
+          if ( associated(iter%next) ) then
+             iter => iter%next
+          else
+             exit
+          endif
+       enddo
+    else
+       write(6,*) "[obtain__groupNumArray] list is empty.... "
+       return
+    endif
+    return
+  end subroutine obtain__groupNumArray
+
+  
   ! ====================================================== !
   ! === show the contents of the list                  === !
   ! ====================================================== !
@@ -245,13 +287,13 @@ contains
     implicit none
     type(list_type), pointer, intent(in) :: list
     type(list_type), pointer             :: iter
-
+    
     if ( associated( list ) ) then
        iter => list
        do
           write(6,*) "groupNum = "  , iter%groupNum, "nCell = ", iter%nCell, &
                &     "elementNum = ", iter%cells(:)
-
+          
           if ( associated(iter%next) ) then
              iter => iter%next
           else
@@ -267,11 +309,6 @@ contains
 
   
 end module lstStructMod
-
-
-
-
-
 
 
   ! ! ====================================================== !
